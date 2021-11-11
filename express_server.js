@@ -2,7 +2,11 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(express.static("public")); // Static files (css / images)
+app.use(express.urlencoded({ extended: false })); // Parses the body of a form request string in an object
+app.use(cookieParser());
 app.set("view engine", "ejs");
 
 const generateRandomString = function() {
@@ -21,6 +25,12 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const usernameDatabase = {
+  kunvar13: "Logged in as Kalpesh Kunvar",
+  gkunvar13: "Logged in as Gayatri Kunvar",
+  akunvar13: "Logged in as aadi kunvar"
+};
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
@@ -32,17 +42,20 @@ app.get("/", (req, res) => {
 
 //Adding EJS to tinyApp
 
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { urls: urlDatabase, username: req.cookies['username']};
+  console.log(templateVars);
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { urls: urlDatabase};
+  res.render("urls_new",templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
   res.render("urls_show", templateVars);
 });
 
@@ -76,11 +89,28 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  //const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
-  console.log("req.params",req.params.shortURL);
-  console.log("req.body", req.body);
   urlDatabase[req.params.shortURL] = req.body.longURL;
   res.redirect('/urls');
+});
+
+app.post("/login", (req, res) => {
+  //console.log(req.body);
+  const username = req.body.username;
+  console.log(username);
+  //rsconsole.log(userToAuth);
+  for (let key in usernameDatabase) {
+    if (key === username) {
+      console.log(res.cookie('username', username));
+      //res.cookie("isAuthenticated", true);
+      return res.redirect('/urls');
+    }
+  }
+  return res.send("BAD username");
+});
+
+app.post("/logout", (req, res) => {
+  res.clearCookie("username");
+  return res.redirect("/urls");
 });
 
 

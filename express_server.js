@@ -26,6 +26,19 @@ charactersLength));
   return result;
 };
 
+const urlsForUser = function(id) {
+  let urlObj = {};
+  for (let key in urlDatabase) {
+    if (urlDatabase[key].userID === id) {
+      urlObj[key] = {
+        longURL: urlDatabase[key].longURL,
+        userID: urlDatabase[key].userID
+      };
+    }
+  }
+  return urlObj;
+};
+
 //////////////////////////////////////////
 
 ////////////////////////////////////////// Databases ////////////////////////////////////
@@ -35,10 +48,10 @@ const urlDatabase = {
     longURL: "http://www.lighthouselabs.ca",
     userID: "kunvar13"
   },
-  "9sm5xK": { 
+  "9sm5xK": {
     longURL: "http://www.google.com",
     userID:"gkunvar13"
-}
+  }
 };
 
 const usernameDatabase = {
@@ -62,7 +75,7 @@ const usernameDatabase = {
 //index endpoint
 
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.cookies['userID']};
+  const templateVars = { urls: urlsForUser(req.cookies['userID']), users: usernameDatabase, userID: req.cookies['userID']};
   res.render("urls_index", templateVars);
 });
 
@@ -85,7 +98,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let sUrl = generateRandomString();
-  urlDatabase[sUrl].longURL = (req.body.longURL);
+  urlDatabase[sUrl] = req.body.longURL;
   res.redirect(`/urls/${sUrl}`);
 });
 
@@ -110,7 +123,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL", (req, res) => {
-  urlDatabase[req.params.shortURL].longURL = req.body.longURL;
+// urlDatabase[[req.params.shortURL]] = req.body.longURL;
   res.redirect('/urls');
 });
 
@@ -128,7 +141,7 @@ app.post("/login", (req, res) => {
     if (usernameDatabase[key].email === email && usernameDatabase[key].password === password) {
       const userID = key;
       res.cookie("userID", userID);
-      const templateVars = {urls: urlDatabase, users: usernameDatabase, userID: req.cookies['userID']};
+      const templateVars = {urls: urlsForUser(userID), users: usernameDatabase, userID: req.cookies['userID']};
       return res.redirect("/urls");
     }
   }

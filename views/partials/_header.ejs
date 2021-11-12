@@ -8,26 +8,26 @@
       <div class="navbar-nav">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <% if (userID === undefined) { %>
+        <form class="form-inline" action="login" method="get">
+          <div class="form-group mb-2">
+            <button type="submit" class="btn btn-primary">Login</button>
       </div>
-      <% if (username !== undefined) { %>
-        <form class="form-inline" action="/logout" method="POST">
-          <div class="inline">
-          <h1> <%= username %> Logged in! </h1>
-          <button type="submit" class="btn btn-primary">Logout</button>
-        </div>
         </form>
-          <% } %>
-
-          <% if (username === undefined) { %>
-
-      <div class="topnav-right">
-            <form class="form-inline" action="/login" method="POST">
-              <div class="form-group mb-2">
-                <input class="form-control" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em">
-                <button type="submit" class="btn btn-primary">Login</button>
+        <form class="form-inline" action="register" method="get">
+          <div class="form-group mb-2">
+            <button type="submit" class="btn btn-primary">Register</button>
+      </div>
+        </form>
+      <% } else { %>
+        <form class="form-inline" action="logout" method="POST">
+          <div class="form-group mb-2">
+              <div class="inline">
+              <h1> <%= users[userID].email %> Logged in! </h1>
+              <button type="submit" class="btn btn-primary">Logout</button>
               </div>
-            </form>
-    </div>
-    <% } %>
+              </div>
+        </form>
+        <%}%> 
   </nav>
 </header>

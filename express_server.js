@@ -132,7 +132,7 @@ app.post("/login", (req, res) => {
       return res.redirect("/urls");
     }
   }
-  return res.send("BAD username");
+  return res.send("BAD email id or password, please enter the valid email id or password, and try again");
 });
 
 app.post("/logout", (req, res) => {

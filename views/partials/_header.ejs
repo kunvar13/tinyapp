@@ -7,8 +7,16 @@
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
         <% if (userID === undefined) { %>
-        <a class="nav-item nav-link" href="/login">My URLs</a>
-        <a class="nav-item nav-link" href="/login">Create New URL</a>
+          <form class="form-inline" action="login" method="POST">
+            <div class="form-group mb-2">
+              <button type="submit" class="btn btn-primary">My URLs</button>
+        </div>
+          </form>
+          <form class="form-inline" action="login" method="POST">
+            <div class="form-group mb-2">
+              <button type="submit" class="btn btn-primary">Create New URL</button>
+        </div>
+          </form>
         <form class="form-inline" action="login" method="get">
           <div class="form-group mb-2">
             <button type="submit" class="btn btn-primary">Login</button>

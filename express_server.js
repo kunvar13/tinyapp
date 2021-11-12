@@ -119,7 +119,10 @@ app.post("/login", (req, res) => {
   const password = req.body.password;
   for (let key in usernameDatabase) {
     if (usernameDatabase[key].email === email && usernameDatabase[key].password === password) {
-      return res.redirect('/urls');
+      const userID = key;
+      res.cookie("userID", userID);
+      const templateVars = {urls: urlDatabase, users: usernameDatabase, userID: req.cookies['userID']};
+      return res.redirect("/urls");
     }
   }
   return res.send("BAD username");
@@ -153,7 +156,8 @@ app.post("/register", (req, res) => {
   let obj1 = {id: userID, email: req.body.email, password: req.body.password };
   usernameDatabase[userID] = obj1;
   res.cookie("userID", userID);
-  res.redirect('/login');
+  const templateVars = {urls: urlDatabase, users: usernameDatabase, userID: req.cookies['userID']};
+  res.render("login", templateVars);
 });
 
 

@@ -5,6 +5,7 @@ const app = express();
 const PORT = 8080; // default port 8080
 const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
+const bcrypt = require('bcryptjs');
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(express.static("public")); // Static files (css / images)
 app.use(express.urlencoded({ extended: false })); // Parses the body of a form request string in an object
@@ -54,16 +55,20 @@ const urlDatabase = {
   }
 };
 
+const password1 = "regina@SK"; // found in the req.params object
+const hashedPassword1 = bcrypt.hashSync(password1, 10);
+const hashedPassword2 = bcrypt.hashSync("saskatoon@SK", 10);
+
 const usernameDatabase = {
   "kunvar13": {
     id: "kunvar13",
     email: "knk.fetr@gmail.com",
-    password: "regina@SK"
+    password: hashedPassword1
   },
   "gkunvar13": {
     id: "gkunvar13",
     email: "gkunvar18@gmail.com",
-    password: "saskatoon@SK"
+    password: hashedPassword2
   }
 };
 
@@ -150,7 +155,7 @@ app.post("/login", (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   for (let key in usernameDatabase) {
-    if (usernameDatabase[key].email === email && usernameDatabase[key].password === password) {
+    if (usernameDatabase[key].email === email && bcrypt.compareSync(password, usernameDatabase[key].password)) {
       const userID = key;
       res.cookie("userID", userID);
       const templateVars = {urls: urlsForUser(userID), users: usernameDatabase, userID: req.cookies['userID']};
@@ -185,7 +190,8 @@ app.post("/register", (req, res) => {
       return res.send(" Error 400, Email ID already exist");
   }
   const userID = generateRandomString();
-  let obj1 = {id: userID, email: req.body.email, password: req.body.password };
+  let hashedPassword =  bcrypt.hashSync(req.body.password, 10);
+  let obj1 = {id: userID, email: req.body.email, password: hashedPassword };
   usernameDatabase[userID] = obj1;
   res.cookie("userID", userID);
   const templateVars = {urls: urlDatabase, users: usernameDatabase, userID: req.cookies['userID']};

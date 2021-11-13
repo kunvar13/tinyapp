@@ -82,7 +82,6 @@ app.get("/urls", (req, res) => {
 //end point to add new URL
 
 app.get("/urls/new", (req, res) => {
-  console.log(req.body);
   const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.cookies['userID']};
   res.render("urls_new",templateVars);
 });
@@ -98,7 +97,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 app.post("/urls", (req, res) => {
   let sUrl = generateRandomString();
-  urlDatabase[sUrl] = req.body.longURL;
+  urlDatabase[sUrl] = {id: req.body.longURL, userID: req.cookies['userID']};
   res.redirect(`/urls/${sUrl}`);
 });
 
@@ -122,8 +121,21 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   res.render("urls_show", templateVars);
 });
 
-app.post("/urls/:shortURL", (req, res) => {
-// urlDatabase[[req.params.shortURL]] = req.body.longURL;
+app.post("/urls/:shortURL/:userID", (req, res) => {
+  let sUrl = req.params.shortURL;
+  urlDatabase[sUrl] = {
+    longURL: req.body.longURL,
+    userID: req.params.userID};
+  console.log(urlDatabase[sUrl]);
+  res.redirect('/urls');
+});
+
+app.post("/urls/:userID", (req, res) => {
+  let sUrl = generateRandomString();
+  urlDatabase[sUrl] = {
+    longURL: req.body.longURL,
+    userID: req.params.userID};
+  console.log(urlDatabase[sUrl]);
   res.redirect('/urls');
 });
 

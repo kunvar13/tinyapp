@@ -18,7 +18,7 @@
          <div class="card-body">
             <h5 class="card-title">Edit URL</h5>
               <div class="card-text-center">
-                <form class="form-inline" action="/urls/<%= shortURL%>" method="POST">
+                <form class="form-inline" action="/urls/<%= shortURL%>/<%= userID%>" method="POST">
                   <div class="form-group mb-2">
                      <label for="longURL">Enter a URL:</label>
                         <input class="form-control" type="text" name="longURL" style="width: 300px; margin: 1em">

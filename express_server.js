@@ -85,11 +85,12 @@ const usernameDatabase = {
 //index endpoint
  
 app.get("/urls", (req, res) => {
+  //shorting our urls for the current user using urlsForUser
   const templateVars = { urls: urlsForUser(req.session.userID), users: usernameDatabase, userID: req.session.userID};
   res.render("urls_index", templateVars);
 });
  
-//end point to add new URL
+//end point display add new URL page
  
 app.get("/urls/new", (req, res) => {
   const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};
@@ -125,37 +126,41 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   res.redirect('/urls');
 });
  
-//endpoint to edit URL
+//endpoint to display edit URL page
 app.get("/urls/:shortURL/edit", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL,users: usernameDatabase, userID: req.session.userID};
   res.render("urls_show", templateVars);
 });
- 
+
+//end point to show urls belong to the user - myURL
+
 app.post("/urls/:shortURL/:userID", (req, res) => {
   let sUrl = req.params.shortURL;
   urlDatabase[sUrl] = {
     longURL: req.body.longURL,
     userID: req.params.userID};
-  console.log(urlDatabase[sUrl]);
   res.redirect('/urls');
 });
  
+//end point to create new url
+
 app.post("/urls/:userID", (req, res) => {
   let sUrl = generateRandomString();
   urlDatabase[sUrl] = {
     longURL: req.body.longURL,
     userID: req.params.userID};
-  console.log(urlDatabase[sUrl]);
   res.redirect('/urls');
 });
  
-//endpoint to login
+//endpoint for login page
  
 app.get("/login", (req, res) =>{
   req.session = null;
   const templateVars = {urls: urlDatabase, users: usernameDatabase, userID: undefined};
   res.render("login",templateVars);
 });
+
+//end point to authenticate user through login
  
 app.post("/login", (req, res) => {
   const email = req.body.email;
@@ -176,7 +181,7 @@ app.post("/logout", (req, res) => {
   return res.redirect("/login");
 });
  
-//end point for Registeration page
+//end point to display registeration page
  
 app.get("/register", (req, res) => {
   const templateVars = {urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};
@@ -184,7 +189,7 @@ app.get("/register", (req, res) => {
  
 });
  
-//Getting parameters from register page
+//end point to register and redirect user
  
 app.post("/register", (req, res) => {
   if (req.body.email === undefined || req.body.password === undefined) {
@@ -200,7 +205,6 @@ app.post("/register", (req, res) => {
   let obj1 = {id: userID, email: req.body.email, password: hashedPassword };
   usernameDatabase[userID] = obj1;
   req.session.userID = userID;
-  //const templateVars = {urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};
   res.redirect("/login");
 });
  

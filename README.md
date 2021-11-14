@@ -1,6 +1,6 @@
 # tinyapp - project submitted by Kalpesh Kunvar
 
-##Functionality
+## Functionality
 
 -  User can create the tiny URL for the respective long URL
 -  Provides ability to create the new user account

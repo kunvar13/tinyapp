@@ -159,7 +159,6 @@ app.post("/urls/:shortURL/:userID", (req, res) => {
 //end point to display URLS that belongs to the user only
 
 app.get("/url", (req, res) => {
-  console.log("I am running");
   //shorting our urls for the current user using urlsForUser
   const templateVars = { urls: urlsForUser(req.session.userID), users: usernameDatabase, userID: req.session.userID};
   //const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};

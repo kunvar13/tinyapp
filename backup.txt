@@ -86,8 +86,7 @@ const usernameDatabase = {
  
 app.get("/urls", (req, res) => {
   //shorting our urls for the current user using urlsForUser
-  //const templateVars = { urls: urlsForUser(req.session.userID), users: usernameDatabase, userID: req.session.userID};
-  const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};
+  const templateVars = { urls: urlsForUser(req.session.userID), users: usernameDatabase, userID: req.session.userID};
   res.render("urls_index", templateVars);
 });
  
@@ -121,29 +120,16 @@ app.get("/u/:shortURL", (req, res) => {
 });
  
 //endpoint to delete URL
-
 app.post("/urls/:shortURL/delete", (req, res) => {
-
-  // Adding functionality - User can delete the URL belongs to them
   const sUrl = req.params.shortURL;
-  if (urlDatabase[sUrl].userID === req.session.userID) {
-    res.redirect('/urls');
-    delete urlDatabase[sUrl];
-    res.redirect('/urls');
-  } else {
-    return res.send(" Error 400, User is not allowed to edit this URL");
-  }
+  delete urlDatabase[sUrl];
+  res.redirect('/urls');
 });
  
 //endpoint to display edit URL page
 app.get("/urls/:shortURL/edit", (req, res) => {
   const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL].longURL,users: usernameDatabase, userID: req.session.userID};
-  //checking if user is allowed to edit the URL or not
-  if (urlDatabase[req.params.shortURL].userID === req.session.userID) {
-    res.render("urls_show", templateVars);
-  } else {
-    return res.send(" Error 400, User is not allowed to edit this URL");
-  }
+  res.render("urls_show", templateVars);
 });
 
 //end point to show urls belong to the user - myURL
@@ -156,19 +142,8 @@ app.post("/urls/:shortURL/:userID", (req, res) => {
   res.redirect('/urls');
 });
  
-//end point to display URLS that belongs to the user only
-
-app.get("/url", (req, res) => {
-  console.log("I am running");
-  //shorting our urls for the current user using urlsForUser
-  const templateVars = { urls: urlsForUser(req.session.userID), users: usernameDatabase, userID: req.session.userID};
-  //const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};
-  res.render("urls_index", templateVars);
-});
-  
-  
 //end point to create new url
-  
+
 app.post("/urls/:userID", (req, res) => {
   let sUrl = generateRandomString();
   urlDatabase[sUrl] = {

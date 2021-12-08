@@ -87,8 +87,12 @@ const usernameDatabase = {
 app.get("/urls", (req, res) => {
   //shorting our urls for the current user using urlsForUser
   //const templateVars = { urls: urlsForUser(req.session.userID), users: usernameDatabase, userID: req.session.userID};
-  const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};
-  res.render("urls_index", templateVars);
+  if (req.session.userID === undefined) {
+    return res.send(" <html> <head>Server Response</head><body><h1> You are not logged in, please login first <a href='/login'>login page</a></h1></body></html>");
+  } else {
+    const templateVars = { urls: urlDatabase, users: usernameDatabase, userID: req.session.userID};
+    res.render("urls_index", templateVars);
+  }
 });
  
 //end point display add new URL page

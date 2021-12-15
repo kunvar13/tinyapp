@@ -6,38 +6,31 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
       <div class="navbar-nav">
-        <% if (userID === undefined) { %>
-          <form class="form-inline" action="login" method="POST">
-            <div class="form-group mb-2">
-              <button type="submit" class="btn btn-primary">My URLs</button>
-        </div>
-          </form>
-          <form class="form-inline" action="login" method="POST">
-            <div class="form-group mb-2">
-              <button type="submit" class="btn btn-primary">Create New URL</button>
-        </div>
-          </form>
-        <form class="form-inline" action="login" method="get">
-          <div class="form-group mb-2">
-            <button type="submit" class="btn btn-primary">Login</button>
-      </div>
-        </form>
-        <form class="form-inline" action="register" method="get">
-          <div class="form-group mb-2">
-            <button type="submit" class="btn btn-primary">Register</button>
-      </div>
-        </form>
-      <% } else { %>
-        <a class="nav-item nav-link" href="/url">My URLs</a>
+        <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-        <form class="form-inline" action="logout" method="POST">
-          <div class="form-group mb-2">
-              <div class="inline">
-              <h5> <%= users[userID].email %> Logged in! </h5>
-              <button type="submit" class="btn btn-primary">Logout</button>
-              </div>
-              </div>
-        </form>
-        <%}%> 
-  </nav>
+      </div>
+    </div>
+    
+
+    
+<%    if(user) { %>
+  <a class="nav-item nav-link" style="color:powderblue;" >  Logged In As: <%= registeredUsers[user]["email"] %></a>
+
+
+      <form action="/logout" method="POST">
+
+        <button type="submit">Log Out</button>
+      </form>
+ <%   } else {   %>
+    <form method="GET" action="/login">
+      <!-- <input class="authorization" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em"> -->
+      <button type="submit">Log In</button>
+    </form>
+    <form method="GET" action="/register">
+      <!-- <input class="authorization" type="text" name="username" placeholder="username" style="width: 300px; margin: 1em"> -->
+      <button type="submit">Register</button>
+    </form>
+
+ <%    } %>
+</nav>
 </header>

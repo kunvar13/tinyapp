@@ -1,3 +1,6 @@
+/* eslint-disable func-style */
+/* eslint-disable camelcase */
+/* eslint-disable linebreak-style */
 const getUserByEmail = require("./helper");
 const emailAlreadyExists = require("./helper");
 
@@ -215,20 +218,22 @@ app.post("/register", (req, res) => {
     res.status(400).send("<html> <head>Server Response</head><body><h1> This email already exists, please click on the <a href='/login'>login page</a></h1></body></html>");
 
     return;
+  } else {
+
+    let newID = generateRandomString();
+
+    users[newID] =   {
+      id : newID,
+      email : req.body.email,
+      password : bcrypt.hashSync(req.body.password, 10)
+    };
+
+    console.log(users[newID]["password"]);
+
+    req.session.user_id = newID;
+    res.redirect("/urls");
+
   }
-
-  let newID = generateRandomString();
-
-  users[newID] =   {
-    id : newID,
-    email : req.body.email,
-    password : bcrypt.hashSync(req.body.password, 10)
-  };
-
-  console.log(users[newID]["password"]);
-
-  req.session.user_id = newID;
-  res.redirect("/urls");
 
 });
 /////////////////////LOGIN PAGE & BUTTONS
@@ -283,14 +288,15 @@ app.post("/logout", (req, res) => {
   res.redirect("/urls");
 });
 
-app.get("/hello", (req, res) => {
+app.get("/", (req, res) => {
   if (!req.session.user_id) {
     res.redirect("/login");
-    return;
+  } else {
+    let userIDFromCookie = req.session.user_id;
+    userSpecificURLDatabase = urlsForUser(userIDFromCookie);
+    const templateVars = { urls: userSpecificURLDatabase, user: req.session.user_id, registeredUsers: users };
+    res.render("urls_index", templateVars);
   }
-
-  const templateVars = { greeting: 'Hello World!', user: req.session.user_id };
-  res.render("urls_show", templateVars);
 });
 
 app.listen(PORT, () => {

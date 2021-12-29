@@ -117,18 +117,9 @@ app.get("/urls/new", (req, res) => {
     return;
   }
 
-  // let userSpecificURLDatabase = {};
   let userIDFromCookie = req.session.user_id;
-
   userSpecificURLDatabase = urlsForUser(userIDFromCookie);
-
-  
-  // console.log(req.session);
-  // console.log(users);
-  // console.log(users[req.session.user_id]["email"]);
-
   const templateVars = { urls: userSpecificURLDatabase, user: req.session.user_id, registeredUsers: users };
-  
   res.render("urls_new", templateVars);
 
 });
@@ -139,12 +130,11 @@ app.get("/urls/:shortURL", (req, res) =>{
     res.status(401).send("<html> <head>Server Response</head><body><h1> You are not logged in, you will be transferred to the <a href='/login'>login page</a></h1></body></html>");
     return;
   }
-  // let userSpecificURLDatabase = {};
+
   let userIDFromCookie = req.session.user_id;
 
   userSpecificURLDatabase = urlsForUser(userIDFromCookie);
-  //console.log("I am userSpecificDatabas",userSpecificURLDatabase);
-
+  
   if (userSpecificURLDatabase[req.params.shortURL] === undefined) {
 
     res.status(401).send("<html> <head>Server Response</head><body><h1>Provided shortURL is wrong or doesnt belong to you, pls try again with valid ShortURL</h1></body></html>");
@@ -193,14 +183,13 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   if (urlDatabase[req.params.shortURL] && urlDatabase[req.params.shortURL].userID === userIDFromCookie) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
-    //console.log(urlDatabase);
     return;
   } else {
     res.status(401).send("<html> <head>Server Response</head><body><h1> Cannot delete that which does not exist, you will be transferred to the <a href='/urls'>main page</a></h1></body></html>");
-
   }
   
 });
+
 app.get("/u/:shortURL", (req, res) => {
   if (urlDatabase[req.params.shortURL] !== undefined) {
     const longURL = urlDatabase[req.params.shortURL]["longURL"];
@@ -212,32 +201,27 @@ app.get("/u/:shortURL", (req, res) => {
 //////////////////////registration page
 app.get("/register", (req, res) => {
 
-  // console.log(Object.keys(req.session))
-
   if (req.session.user_id) {
-    res.redirect("/login");
+    res.redirect("/urls");
     return;
   }
-
   const templateVars = { urls: urlDatabase, user: req.session[users.id], registeredUsers: users};
   res.render("register", templateVars);
 });
 
 app.post("/register", (req, res) => {
-  // console.log("request received");
+  console.log(req.body.email);
   if (!req.body.email || !req.body.password) {
-    console.log("entered the if statement");
     res.status(400).send("Either the email or password is missing, please fill it out");
     return;
-  } else if (emailAlreadyExists(req.body.email)) {
+
+  } else if (emailAlreadyExists(req.body.email, users) === true) {
+    console.log("Email already exist");
     res.status(400).send("This email already exists");
     res.status(400).send("<html> <head>Server Response</head><body><h1> This email already exists, please click on the <a href='/login'>login page</a></h1></body></html>");
-
     return;
   } else {
-
     let newID = generateRandomString();
-
     users[newID] =   {
       id : newID,
       email : req.body.email,

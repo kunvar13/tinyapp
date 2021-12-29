@@ -13,9 +13,9 @@ const getUserByEmail = function(submittedEmail, users){
 
 };
 
-function emailAlreadyExists(submittedEmail, users){
+function emailAlreadyExists(submittedEmail,users){
   for (const user in users) {
-    if (users[user.email] === submittedEmail) {
+    if (users[user].email === submittedEmail) {
       return true;
     }
   }

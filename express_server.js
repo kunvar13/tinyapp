@@ -95,18 +95,19 @@ app.get("/urls", (req, res) => {
 
 app.post("/urls", (req, res) => {
   // console.log(req.body);  // Log the POST request body to the console
+  if (!req.session.user_id) {
+    //console.log("pls login");
+    res.status(401).send("<html> <head>Server Response</head><body><h1> You are not logged in, you will be transferred to the <a href='/login'>login page</a></h1></body></html>");
+    return;
+  }
   let tempShortURL = generateRandomString();
   urlDatabase[tempShortURL] = {
     "longURL" : req.body.longURL,
     "userID" : req.session.user_id
   };
   console.log(urlDatabase);
-
-  // urlDatabase[tempShortURL]["longURL"] = req.body.longURL;
-  // urlDatabase[tempShortURL]["userID"] = req.session[user_id];
-
-
   res.redirect("/urls/" + tempShortURL);         // Respond with 'Ok' (we will replace this)
+
 });
 
 ///////////////////////////////////URLS/new page
@@ -137,33 +138,43 @@ app.get("/urls/:shortURL", (req, res) =>{
   if (!req.session.user_id) {
     res.status(401).send("<html> <head>Server Response</head><body><h1> You are not logged in, you will be transferred to the <a href='/login'>login page</a></h1></body></html>");
     return;
-
   }
   // let userSpecificURLDatabase = {};
   let userIDFromCookie = req.session.user_id;
 
   userSpecificURLDatabase = urlsForUser(userIDFromCookie);
-  
-  
-  const templateVars = {shortURL: req.params.shortURL, longURL: userSpecificURLDatabase[req.params.shortURL]["longURL"], user: req.session.user_id, registeredUsers: users };
-  // console.log(req.session + "<<< this is from /urls/:shortURL ");
-  res.render("urls_show", templateVars);
+  //console.log("I am userSpecificDatabas",userSpecificURLDatabase);
+
+  if (userSpecificURLDatabase[req.params.shortURL] === undefined) {
+
+    res.status(401).send("<html> <head>Server Response</head><body><h1>Provided shortURL is wrong or doesnt belong to you, pls try again with valid ShortURL</h1></body></html>");
+
+  } else {
+    const templateVars = {shortURL: req.params.shortURL, longURL: userSpecificURLDatabase[req.params.shortURL]["longURL"], user: req.session.user_id, registeredUsers: users };
+    res.render("urls_show", templateVars);
+  }
 });
+
 app.post("/urls/:shortURL", (req, res) => {
-
-
-  // let userSpecificURLDatabase = {};
+  if (!req.session.user_id) {
+    //console.log("pls login");
+    res.status(401).send("<html> <head>Server Response</head><body><h1> You are not logged in, you will be transferred to the <a href='/login'>login page</a></h1></body></html>");
+    return;
+  }
   let userIDFromCookie = req.session.user_id;
-
   userSpecificURLDatabase = urlsForUser(userIDFromCookie);
 
-  userSpecificURLDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
-  res.redirect("/urls");
+  if (userSpecificURLDatabase[req.params.shortURL] !== undefined) {
+    userSpecificURLDatabase[req.params.shortURL]["longURL"] = req.body.longURL;
+    res.redirect("/urls");
+  }  else {
+    console.log("doesnt belong to u");
+    res.status(401).send("<html> <head>Server Response</head><body><h1>Provided shortURL is wrong or doesnt belong to you, pls try again with valid ShortURL</h1></body></html>");
+  }
 });
 
 app.get("/urls/:shortURL/delete", (req, res) => {
   res.status(401).send("<html> <head>Server Response</head><body><h1> You cannot delete using this method, redirect to the <a href='/urls'>main page</a></h1></body></html>");
-
   res.redirect("/urls");
   return;
 
@@ -172,26 +183,31 @@ app.get("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL/delete", (req, res) => {
 
-  // let userSpecificURLDatabase = {};
+  if (!req.session.user_id) {
+    //console.log("pls login");
+    res.status(401).send("<html> <head>Server Response</head><body><h1> You are not logged in, you will be transferred to the <a href='/login'>login page</a></h1></body></html>");
+    return;
+  }
   let userIDFromCookie = req.session.user_id;
-  
-  console.log(urlDatabase[req.params.shortURL], userIDFromCookie);
 
   if (urlDatabase[req.params.shortURL] && urlDatabase[req.params.shortURL].userID === userIDFromCookie) {
     delete urlDatabase[req.params.shortURL];
     res.redirect("/urls");
+    //console.log(urlDatabase);
     return;
   } else {
     res.status(401).send("<html> <head>Server Response</head><body><h1> Cannot delete that which does not exist, you will be transferred to the <a href='/urls'>main page</a></h1></body></html>");
 
   }
   
-  // console.log(urlDatabase);
 });
 app.get("/u/:shortURL", (req, res) => {
-
-  const longURL = urlDatabase[req.params.shortURL]["longURL"];
-  res.redirect(longURL);
+  if (urlDatabase[req.params.shortURL] !== undefined) {
+    const longURL = urlDatabase[req.params.shortURL]["longURL"];
+    res.redirect(longURL);
+  } else {
+    res.status(401).send("<html> <head>Server Response</head><body><h1>Provided shortURL is wrong or doesnt belong to you, pls try again with valid ShortURL</h1></body></html>");
+  }
 });
 //////////////////////registration page
 app.get("/register", (req, res) => {
@@ -249,17 +265,14 @@ app.post("/login", (req, res) =>{
   const submittedEmail = req.body.email;
   const submittedPassword = req.body.password;
 
-
-
   console.log(submittedEmail + "<< this is email from the form");
   console.log(submittedPassword + "<< this is password from the form");
-  //  user2@example.com
-  //  dishwasher-funk
+  //  knk.fetr@gmail.com
+  //  Regina@SK
 
   // let authorizer = null;
 
   let foundUser = false;
-
   let desiredUser = {};
 
   // console.log(users[user]['password']);
